@@ -55,16 +55,20 @@ abstract class MultiDestination
             {
                 channelEndpoint.sendHook(buffer, destination);
                 buffer.position(position);
-                bytesSent = datagramChannel.send(buffer, destination);
+                try {
+                    bytesSent = datagramChannel.send(buffer, destination);
+                } catch (Exception e) {
+                    throw new PortUnreachableException();
+                }
             }
         }
         catch (final PortUnreachableException ignore)
         {
         }
-        catch (final IOException ex)
-        {
-            sendError(bytesToSend, ex, destination);
-        }
+//        catch (final IOException ex)
+//        {
+//            sendError(bytesToSend, ex, destination);
+//        }
 
         return bytesSent;
     }

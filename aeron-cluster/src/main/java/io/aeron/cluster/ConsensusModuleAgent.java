@@ -2178,7 +2178,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
                     this.passiveMembers = ClusterMember.removeMember(this.passiveMembers, member.id());
                     clusterMembers = newMembers;
-                    rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
+                    rankedPositions = new long[clusterMembers.length];
 
                     System.out.println("ConsensusModuleAgent.processPassiveMembers appendMembershipChangeEvent" +
                             " member.id: " + member.id() +
@@ -2443,7 +2443,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         }
 
         clusterMembers = newClusterMembers;
-        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
+        rankedPositions = new long[clusterMembers.length];
     }
 
     private int updateMemberPosition(final long nowNs)
@@ -2718,24 +2718,24 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         highMemberId = Math.max(highMemberId, memberId);
 
         final ClusterMember eventMember = ClusterMember.findMember(newMembers, memberId);
-        if (eventMember != null) {
-            final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
-            System.out.println("ConsensusModuleAgent.clusterMemberJoined my addMemberStatusPublication");
-            ClusterMember.addMemberStatusPublication(eventMember, memberStatusUri, ctx.memberStatusStreamId(), aeron);
-        }
+//        if (eventMember != null) {
+//            final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
+//            System.out.println("ConsensusModuleAgent.clusterMemberJoined my addMemberStatusPublication");
+//            ClusterMember.addMemberStatusPublication(eventMember, memberStatusUri, ctx.memberStatusStreamId(), aeron);
+//        }
 
         clusterMembers = ClusterMember.addMember(clusterMembers, eventMember);
         System.out.println("ConsensusModuleAgent.clusterMemberJoined memberId: " + memberId + " clusterMembers: "
          + Arrays.toString(clusterMembers));
         clusterMemberByIdMap.put(memberId, eventMember);
-        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
+        rankedPositions = new long[clusterMembers.length];
     }
 
     private void clusterMemberQuit(final int memberId)
     {
         clusterMembers = ClusterMember.removeMember(clusterMembers, memberId);
         clusterMemberByIdMap.remove(memberId);
-        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
+        rankedPositions = new long[clusterMembers.length];
     }
 
     private void closeExistingLog()
