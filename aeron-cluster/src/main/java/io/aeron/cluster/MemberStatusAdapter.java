@@ -245,6 +245,7 @@ class MemberStatusAdapter implements FragmentHandler, AutoCloseable
                 break;
 
             case JoinClusterDecoder.TEMPLATE_ID:
+                System.out.println("MemberStatusAdapter.onFragment JoinClusterDecoder.TEMPLATE_ID");
                 joinClusterDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,

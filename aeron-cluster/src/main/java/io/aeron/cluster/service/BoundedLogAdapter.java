@@ -192,6 +192,7 @@ final class BoundedLogAdapter implements ControlledFragmentHandler, AutoCloseabl
                 break;
 
             case MembershipChangeEventDecoder.TEMPLATE_ID:
+                System.out.println("BoundedLogAdapter.onFragment MembershipChangeEventDecoder.TEMPLATE_ID");
                 membershipChangeEventDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,

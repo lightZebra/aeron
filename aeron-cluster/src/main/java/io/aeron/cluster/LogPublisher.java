@@ -307,6 +307,13 @@ class LogPublisher
         final int memberId,
         final String clusterMembers)
     {
+
+        System.out.println("LogPublisher.appendMembershipChangeEvent "
+                + "leadershipTermId = " + leadershipTermId + ", timestamp = " + timestamp
+                + ", leaderMemberId = " + leaderMemberId + ", clusterSize = " + clusterSize
+                + ", changeType = " + changeType + ", memberId = " + memberId + ", clusterMembers = "
+                + clusterMembers);
+
         long result;
         final int fragmentedLength = computeMembershipChangeEventFragmentedLength(clusterMembers);
 
@@ -335,6 +342,7 @@ class LogPublisher
         }
         while (--attempts > 0);
 
+        System.out.println("LogPublisher.appendMembershipChangeEvent result: " + result);
         return result;
     }
 

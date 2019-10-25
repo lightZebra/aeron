@@ -38,6 +38,7 @@ import org.agrona.concurrent.*;
 import org.agrona.concurrent.status.CountersReader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -599,6 +600,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
                 final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
 
+                System.out.println("ConsensusModuleAgent.onAddPassiveMember addMemberStatusPublication");
                 ClusterMember.addMemberStatusPublication(
                     newMember, memberStatusUri, ctx.memberStatusStreamId(), aeron);
 
@@ -648,6 +650,9 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
     public void onJoinCluster(final long leadershipTermId, final int memberId)
     {
         final ClusterMember member = clusterMemberByIdMap.get(memberId);
+        System.out.println("ConsensusModuleAgent.onJoinCluster "
+                + "leadershipTermId = " + leadershipTermId + ", memberId = " + memberId
+        + " clusterMember = " + member);
 
         if (null == election && Cluster.Role.LEADER == role && null != member && !member.hasRequestedJoin())
         {
@@ -655,6 +660,8 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
             {
                 final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
 
+                System.out.println("ConsensusModuleAgent.onJoinCluster addMemberStatusPublication, member: " +
+                        member);
                 ClusterMember.addMemberStatusPublication(member, memberStatusUri, ctx.memberStatusStreamId(), aeron);
                 logPublisher.addPassiveFollower(member.logEndpoint());
             }
@@ -748,6 +755,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
             {
                 passiveMembers = ClusterMember.removeMember(passiveMembers, memberId);
 
+                System.out.println("ConsensusModuleAgent.onRemoveMember closePublication");
                 member.closePublication();
                 logPublisher.removePassiveFollower(member.logEndpoint());
 
@@ -760,6 +768,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
                 final String newClusterMembersString = ClusterMember.encodeAsString(newClusterMembers);
 
                 final long now = clusterClock.time();
+                System.out.println("ConsensusModuleAgent.onRemoveMember logPublisher ChangeType.QUIT");
                 final long position = logPublisher.appendMembershipChangeEvent(
                     leadershipTermId,
                     now,
@@ -1231,6 +1240,12 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         final int memberId,
         final String clusterMembers)
     {
+        System.out.println("ConsensusModuleAgent.onMembershipChange "
+                + "leadershipTermId = " + leadershipTermId + ", logPosition = " + logPosition
+                + ", timestamp = " + timestamp + ", leaderMemberId = " + leaderMemberId
+                + ", clusterSize = " + clusterSize + ", changeType = " + changeType
+                + ", memberId = " + memberId + ", clusterMembers = " + clusterMembers);
+
         this.leadershipTermId = leadershipTermId;
 
         if (ChangeType.JOIN == changeType)
@@ -1238,6 +1253,8 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
             final ClusterMember[] newMembers = ClusterMember.parse(clusterMembers);
             if (memberId == this.memberId)
             {
+                System.out.println("ConsensusModuleAgent.onMembershipChange newMembers: " +
+                        Arrays.toString(newMembers));
                 this.clusterMembers = newMembers;
                 clusterMemberByIdMap.clear();
                 clusterMemberByIdMap.compact();
@@ -1245,6 +1262,8 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
                 thisMember = ClusterMember.findMember(this.clusterMembers, memberId);
                 leaderMember = ClusterMember.findMember(this.clusterMembers, leaderMemberId);
 
+                System.out.println("ConsensusModuleAgent.onMembershipChange addMemberStatusPublications newMembers:"
+                        + Arrays.toString(newMembers));
                 ClusterMember.addMemberStatusPublications(
                     newMembers,
                     thisMember,
@@ -1293,6 +1312,11 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
     void onReloadClusterMembers(final int memberId, final int highMemberId, final String members)
     {
+        System.out.println("ConsensusModuleAgent.onReloadClusterMembers "
+                + "memberId = " + memberId + ", highMemberId = " + highMemberId + ", members = " + members);
+        System.out.println("ConsensusModuleAgent.onReloadClusterMembers"
+         + "ctx.clusterMembersIgnoreSnapshot(), null != dynamicJoin" +
+                ctx.clusterMembersIgnoreSnapshot() + ", " + (null != dynamicJoin));
         if (ctx.clusterMembersIgnoreSnapshot() || null != dynamicJoin)
         {
             return;
@@ -1302,12 +1326,15 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
         if (Aeron.NULL_VALUE == this.memberId)
         {
+            System.out.println("ConsensusModuleAgent.onReloadClusterMembers Aeron.NULL_VALUE == this.memberId");
             this.memberId = memberId;
             ctx.clusterMarkFile().memberId(memberId);
         }
 
         if (ClusterMember.EMPTY_CLUSTER_MEMBER_ARRAY == this.clusterMembers)
         {
+            System.out.println("ConsensusModuleAgent.onReloadClusterMembers ClusterMember.EMPTY_CLUSTER_MEMBER_ARRAY == this.clusterMembers");
+            System.out.println("ConsensusModuleAgent.onReloadClusterMembers snapshotClusterMembers: " + Arrays.toString(snapshotClusterMembers));
             clusterMembers = snapshotClusterMembers;
             this.highMemberId = Math.max(ClusterMember.highMemberId(clusterMembers), highMemberId);
             rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
@@ -1651,13 +1678,16 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
     boolean dynamicJoinComplete()
     {
+        System.out.println("ConsensusModuleAgent.dynamicJoinComplete");
         if (0 == clusterMembers.length)
         {
             clusterMembers = dynamicJoin.clusterMembers();
+            System.out.println("ConsensusModuleAgent.dynamicJoinComplete 0 == clusterMembers.length clusterMembers: " + Arrays.toString(clusterMembers));
             ClusterMember.addClusterMemberIds(clusterMembers, clusterMemberByIdMap);
             leaderMember = dynamicJoin.leader();
 
             final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
+            System.out.println("ConsensusModuleAgent.dynamicJoinComplete addMemberStatusPublications");
             ClusterMember.addMemberStatusPublications(
                 clusterMembers, thisMember, memberStatusUri, ctx.memberStatusStreamId(), aeron);
         }
@@ -1669,6 +1699,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
             thisMember.id(dynamicJoin.memberId());
         }
 
+        System.out.println("ConsensusModuleAgent.dynamicJoinComplete clusterMembers: " + Arrays.toString(clusterMembers));
         election = new Election(
             true,
             leadershipTermId,
@@ -2113,6 +2144,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         for (int i = 0, length = passiveMembers.length; i < length; i++)
         {
             final ClusterMember member = passiveMembers[i];
+            System.out.println("ConsensusModuleAgent.processPassiveMembers member:" + member);
 
             if (member.correlationId() != Aeron.NULL_VALUE)
             {
@@ -2129,6 +2161,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
             }
             else if (member.hasRequestedJoin() && member.logPosition() == logPublisher.position())
             {
+                System.out.println("ConsensusModuleAgent.processPassiveMembers addMember: " + member);
                 final ClusterMember[] newMembers = ClusterMember.addMember(clusterMembers, member);
                 final long now = clusterClock.time();
 
@@ -2145,7 +2178,11 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
                     this.passiveMembers = ClusterMember.removeMember(this.passiveMembers, member.id());
                     clusterMembers = newMembers;
-                    rankedPositions = new long[this.clusterMembers.length];
+                    rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
+
+                    System.out.println("ConsensusModuleAgent.processPassiveMembers appendMembershipChangeEvent" +
+                            " member.id: " + member.id() +
+                            " clusterMembers: " + Arrays.toString(clusterMembers));
 
                     member.hasRequestedJoin(false);
                     workCount++;
@@ -2397,6 +2434,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
                 clusterMemberByIdMap.remove(member.id());
                 clusterMemberByIdMap.compact();
 
+                System.out.println("ConsensusModuleAgent.handleMemberRemovals closePublication");
                 member.closePublication();
 
                 logPublisher.removePassiveFollower(member.logEndpoint());
@@ -2405,7 +2443,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         }
 
         clusterMembers = newClusterMembers;
-        rankedPositions = new long[clusterMembers.length];
+        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
     }
 
     private int updateMemberPosition(final long nowNs)
@@ -2527,6 +2565,7 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
     private void takeSnapshot(final long timestamp, final long logPosition)
     {
+        System.out.println("ConsensusModuleAgent.takeSnapshot");
         try (Publication publication = aeron.addExclusivePublication(ctx.snapshotChannel(), ctx.snapshotStreamId()))
         {
             final String channel = ChannelUri.addSessionId(ctx.snapshotChannel(), publication.sessionId());
@@ -2679,17 +2718,24 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
         highMemberId = Math.max(highMemberId, memberId);
 
         final ClusterMember eventMember = ClusterMember.findMember(newMembers, memberId);
+        if (eventMember != null) {
+            final ChannelUri memberStatusUri = ChannelUri.parse(ctx.memberStatusChannel());
+            System.out.println("ConsensusModuleAgent.clusterMemberJoined my addMemberStatusPublication");
+            ClusterMember.addMemberStatusPublication(eventMember, memberStatusUri, ctx.memberStatusStreamId(), aeron);
+        }
 
         clusterMembers = ClusterMember.addMember(clusterMembers, eventMember);
+        System.out.println("ConsensusModuleAgent.clusterMemberJoined memberId: " + memberId + " clusterMembers: "
+         + Arrays.toString(clusterMembers));
         clusterMemberByIdMap.put(memberId, eventMember);
-        rankedPositions = new long[clusterMembers.length];
+        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
     }
 
     private void clusterMemberQuit(final int memberId)
     {
         clusterMembers = ClusterMember.removeMember(clusterMembers, memberId);
         clusterMemberByIdMap.remove(memberId);
-        rankedPositions = new long[clusterMembers.length];
+        rankedPositions = new long[ClusterMember.quorumThreshold(clusterMembers.length)];
     }
 
     private void closeExistingLog()

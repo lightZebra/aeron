@@ -21,6 +21,7 @@ import io.aeron.cluster.service.Cluster;
 import org.agrona.CloseHelper;
 import org.agrona.collections.Int2ObjectHashMap;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -498,6 +499,9 @@ public class Election implements AutoCloseable
     {
         int workCount = 0;
 
+
+//        System.out.println("nowNs, timeOfLastUpdateNs, ctx.electionStatusIntervalNs:  " +
+//                nowNs + " " + timeOfLastUpdateNs + " " + ctx.electionStatusIntervalNs());
         if (nowNs >= (timeOfLastUpdateNs + ctx.electionStatusIntervalNs()))
         {
             timeOfLastUpdateNs = nowNs;
@@ -505,6 +509,7 @@ public class Election implements AutoCloseable
             {
                 if (member != thisMember)
                 {
+                    System.out.println("memberId, publication: " + member.id() + " " + member.publication());
                     memberStatusPublisher.canvassPosition(
                         member.publication(), leadershipTermId, logPosition, thisMember.id());
                 }

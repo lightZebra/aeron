@@ -31,7 +31,7 @@ import static io.aeron.cluster.service.CommitPos.COMMIT_POSITION_TYPE_ID;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
-@Ignore
+//@Ignore
 public class ClusterTest
 {
     private static final String MSG = "Hello World!";

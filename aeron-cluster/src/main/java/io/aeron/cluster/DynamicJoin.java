@@ -150,6 +150,7 @@ class DynamicJoin implements AutoCloseable
                 break;
 
             case JOIN_CLUSTER:
+                System.out.println("DynamicJoin.doWork JOIN_CLUSTER");
                 workCount += joinCluster();
                 break;
         }

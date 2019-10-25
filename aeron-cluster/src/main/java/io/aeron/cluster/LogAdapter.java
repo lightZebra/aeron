@@ -174,6 +174,7 @@ final class LogAdapter implements ControlledFragmentHandler, AutoCloseable
                 break;
 
             case MembershipChangeEventDecoder.TEMPLATE_ID:
+                System.out.println("LogAdapter.onFragment MembershipChangeEventDecoder.TEMPLATE_ID");
                 membershipChangeEventDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,

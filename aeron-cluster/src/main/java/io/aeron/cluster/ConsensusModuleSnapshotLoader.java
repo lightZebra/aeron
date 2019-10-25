@@ -166,6 +166,7 @@ class ConsensusModuleSnapshotLoader implements ControlledFragmentHandler
                 break;
 
             case ClusterMembersDecoder.TEMPLATE_ID:
+                System.out.println("ConsensusModuleSnapshotLoader.onFragment ClusterMembersDecoder.TEMPLATE_ID");
                 clusterMembersDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,

@@ -595,6 +595,7 @@ public final class ClusterMember
      * @param streamId   for the publication.
      * @param aeron      to add the publications to.
      */
+
     public static void addMemberStatusPublications(
         final ClusterMember[] members,
         final ClusterMember exclude,

@@ -117,6 +117,7 @@ final class ConsensusModuleAdapter implements AutoCloseable
                 break;
 
             case ServiceAckDecoder.TEMPLATE_ID:
+                System.out.println("ConsensusModuleAdapter.onFragment ServiceAckDecoder.TEMPLATE_ID");
                 serviceAckDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,
@@ -142,6 +143,7 @@ final class ConsensusModuleAdapter implements AutoCloseable
                 break;
 
             case RemoveMemberDecoder.TEMPLATE_ID:
+                System.out.println("ConsensusModuleAdapter.onFragment RemoveMemberDecoder.TEMPLATE_ID");
                 removeMemberDecoder.wrap(
                     buffer,
                     offset + MessageHeaderDecoder.ENCODED_LENGTH,

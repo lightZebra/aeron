@@ -438,6 +438,8 @@ class MemberStatusPublisher
 
     boolean joinCluster(final Publication publication, final long leadershipTermId, final int memberId)
     {
+        System.out.println("MemberStatusPublisher.joinCluster "
+                + "publication = " + publication + ", leadershipTermId = " + leadershipTermId + ", memberId = " + memberId);
         final int length = MessageHeaderEncoder.ENCODED_LENGTH + JoinClusterEncoder.BLOCK_LENGTH;
 
         int attempts = SEND_ATTEMPTS;
@@ -446,12 +448,14 @@ class MemberStatusPublisher
             final long result = publication.tryClaim(length, bufferClaim);
             if (result > 0)
             {
+                System.out.println("MemberStatusPublisher.joinCluster result: " + result);
                 joinClusterEncoder
                     .wrapAndApplyHeader(bufferClaim.buffer(), bufferClaim.offset(), messageHeaderEncoder)
                     .leadershipTermId(leadershipTermId)
                     .memberId(memberId);
 
                 bufferClaim.commit();
+                System.out.println("MemberStatusPublisher.joinCluster commit true");
 
                 return true;
             }
@@ -460,6 +464,7 @@ class MemberStatusPublisher
         }
         while (--attempts > 0);
 
+        System.out.println("MemberStatusPublisher.joinCluster false");
         return false;
     }
 
