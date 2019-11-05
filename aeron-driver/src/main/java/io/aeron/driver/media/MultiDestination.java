@@ -53,17 +53,17 @@ abstract class MultiDestination
         {
             if (datagramChannel.isOpen())
             {
-                channelEndpoint.sendHook(buffer, destination);
+                channelEndpoint.sendHook(buffer, new InetSocketAddress(destination.getHostString(), destination.getPort()));
                 buffer.position(position);
-                bytesSent = datagramChannel.send(buffer, destination);
+                bytesSent = datagramChannel.send(buffer, new InetSocketAddress(destination.getHostString(), destination.getPort()));
             }
         }
         catch (final PortUnreachableException ignore)
         {
         }
-        catch (final IOException ex)
+        catch (final Exception ex)
         {
-            sendError(bytesToSend, ex, destination);
+//            sendError(bytesToSend, ex, destination);
         }
 
         return bytesSent;

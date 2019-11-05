@@ -144,13 +144,13 @@ class MultiRcvDestination
         {
             if (null != transport && null != transport.sendDatagramChannel && transport.sendDatagramChannel.isOpen())
             {
-                transport.sendHook(buffer, remoteAddress);
-                bytesSent = transport.sendDatagramChannel.send(buffer, remoteAddress);
+                transport.sendHook(buffer, new InetSocketAddress(remoteAddress.getHostString(), remoteAddress.getPort()));
+                bytesSent = transport.sendDatagramChannel.send(buffer, new InetSocketAddress(remoteAddress.getHostString(), remoteAddress.getPort()));
             }
         }
-        catch (final IOException ex)
+        catch (final Exception ex)
         {
-            sendError(remaining, ex, remoteAddress);
+//            sendError(remaining, ex, remoteAddress);
         }
 
         return bytesSent;

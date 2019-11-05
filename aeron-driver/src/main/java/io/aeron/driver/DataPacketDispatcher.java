@@ -297,20 +297,32 @@ public class DataPacketDispatcher
         final InetSocketAddress srcAddress,
         final int transportIndex)
     {
+        System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress);
         final int streamId = header.streamId();
         final StreamInterest streamInterest = streamInterestByIdMap.get(streamId);
 
+        System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                + " streamId:" + streamId
+                + " streamInterest: " + streamInterest);
         if (null != streamInterest)
         {
             final int sessionId = header.sessionId();
             final SessionInterest sessionInterest = streamInterest.sessionInterestByIdMap.get(sessionId);
 
+            System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                    + " streamId:" + streamId
+                    + " sessionId: " + sessionId
+                    + " sessionInterest: " + sessionInterest);
             if (null != sessionInterest)
             {
                 if (null == sessionInterest.image && PENDING_SETUP_FRAME == sessionInterest.state)
                 {
                     sessionInterest.state = INIT_IN_PROGRESS;
 
+                    System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                            + " streamId:" + streamId
+                            + " sessionId: " + sessionId
+                            + " createPublicationImage");
                     createPublicationImage(
                         channelEndpoint,
                         transportIndex,
@@ -326,11 +338,19 @@ public class DataPacketDispatcher
                 }
                 else if (null != sessionInterest.image)
                 {
+                    System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                            + " streamId:" + streamId
+                            + " sessionId: " + sessionId
+                            + " addDestinationConnectionIfUnknown");
                     sessionInterest.image.addDestinationConnectionIfUnknown(transportIndex, srcAddress);
                 }
             }
             else if (streamInterest.isForAllSessions || streamInterest.subscribedSessionIds.contains(sessionId))
             {
+                System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                        + " streamId:" + streamId
+                        + " sessionId: " + sessionId
+                        + " INIT_IN_PROGRESS createPublicationImage");
                 streamInterest.sessionInterestByIdMap.put(sessionId, new SessionInterest(INIT_IN_PROGRESS));
                 createPublicationImage(
                     channelEndpoint,
@@ -347,6 +367,10 @@ public class DataPacketDispatcher
             }
             else
             {
+                System.out.println("DataPacketDispatcher.onSetupMessage srcAddress:" + srcAddress
+                        + " streamId:" + streamId
+                        + " sessionId: " + sessionId
+                        + " NO_INTEREST");
                 streamInterest.sessionInterestByIdMap.put(sessionId, new SessionInterest(NO_INTEREST));
             }
         }
@@ -418,6 +442,9 @@ public class DataPacketDispatcher
     {
         final InetSocketAddress controlAddress = channelEndpoint.isMulticast(transportIndex) ?
             channelEndpoint.udpChannel(transportIndex).remoteControl() : srcAddress;
+
+        System.out.println("DataPacketDispatcher.createPublicationImage srcAddress: " + srcAddress
+         + " controlAddress: " + controlAddress);
 
         if (channelEndpoint.isMulticast(transportIndex) && channelEndpoint.multicastTtl(transportIndex) < setupTtl)
         {

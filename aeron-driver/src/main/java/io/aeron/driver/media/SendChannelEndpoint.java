@@ -188,18 +188,19 @@ public class SendChannelEndpoint extends UdpChannelTransport
             {
                 try
                 {
-                    sendHook(buffer, connectAddress);
+                    sendHook(buffer, new InetSocketAddress(connectAddress.getHostString(), connectAddress.getPort()));
                     if (sendDatagramChannel.isConnected())
                     {
-                        bytesSent = sendDatagramChannel.write(buffer);
+                        bytesSent = sendDatagramChannel.send(buffer,
+                                new InetSocketAddress(connectAddress.getHostString(), connectAddress.getPort()));
                     }
                 }
                 catch (final PortUnreachableException ignore)
                 {
                 }
-                catch (final IOException ex)
+                catch (final Exception ex)
                 {
-                    sendError(bytesToSend, ex, connectAddress);
+//                    sendError(bytesToSend, ex, connectAddress);
                 }
             }
             else

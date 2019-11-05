@@ -123,12 +123,12 @@ public abstract class UdpChannelTransport implements AutoCloseable
             }
             else
             {
-                sendDatagramChannel.bind(bindAddress);
+                sendDatagramChannel.bind(new InetSocketAddress(bindAddress.getPort()));
             }
 
             if (null != connectAddress)
             {
-                sendDatagramChannel.connect(connectAddress);
+                sendDatagramChannel.connect(new InetSocketAddress(connectAddress.getHostString(), connectAddress.getPort()));
             }
 
             if (0 != context.socketSndbufLength())
