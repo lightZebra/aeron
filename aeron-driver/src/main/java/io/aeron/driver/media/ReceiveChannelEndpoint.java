@@ -117,9 +117,18 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
                 }
             }
         }
+        catch (IllegalArgumentException e) {
+            try {
+                reconnect();
+            } catch (IOException ex) {
+                System.out.println("ReceiveChannelEndpoint.sendTo on reconnect");
+                ex.printStackTrace(System.out);
+            }
+        }
         catch (final Exception ex)
         {
-            ex.printStackTrace();
+            System.out.println("ReceiveChannelEndpoint.sendTo");
+            ex.printStackTrace(System.out);
 //            sendError(remaining, ex, remoteAddress);
         }
 

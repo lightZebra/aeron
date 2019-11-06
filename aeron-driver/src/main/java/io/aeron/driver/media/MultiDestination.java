@@ -61,8 +61,18 @@ abstract class MultiDestination
         catch (final PortUnreachableException ignore)
         {
         }
+        catch (IllegalArgumentException e) {
+            try {
+                channelEndpoint.reconnect();
+            } catch (IOException ex) {
+                System.out.println("MultiDestination.send on reconnect");
+                ex.printStackTrace(System.out);
+            }
+        }
         catch (final Exception ex)
         {
+            System.out.println("MultiDestination.send");
+            ex.printStackTrace(System.out);
 //            sendError(bytesToSend, ex, destination);
         }
 

@@ -198,8 +198,18 @@ public class SendChannelEndpoint extends UdpChannelTransport
                 catch (final PortUnreachableException ignore)
                 {
                 }
+                catch (IllegalArgumentException e) {
+                    try {
+                        reconnect();
+                    } catch (IOException ex) {
+                        System.out.println("SendChannelEndpoint.send on reconnect");
+                        ex.printStackTrace(System.out);
+                    }
+                }
                 catch (final Exception ex)
                 {
+                    System.out.println("SendChannelEndpoint.send");
+                    ex.printStackTrace(System.out);
 //                    sendError(bytesToSend, ex, connectAddress);
                 }
             }

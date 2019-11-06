@@ -148,8 +148,18 @@ class MultiRcvDestination
                 bytesSent = transport.sendDatagramChannel.send(buffer, new InetSocketAddress(remoteAddress.getHostString(), remoteAddress.getPort()));
             }
         }
+        catch (IllegalArgumentException e) {
+            try {
+                transport.reconnect();
+            } catch (Exception ex) {
+                System.out.println("MultiRcvDestination.sendTo on reconnect");
+                ex.printStackTrace(System.out);
+            }
+        }
         catch (final Exception ex)
         {
+            System.out.println("MultiRcvDestination.sendTo");
+            ex.printStackTrace(System.out);
 //            sendError(remaining, ex, remoteAddress);
         }
 

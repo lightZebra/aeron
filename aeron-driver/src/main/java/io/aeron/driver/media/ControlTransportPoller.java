@@ -31,9 +31,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 
 import static io.aeron.logbuffer.FrameDescriptor.frameType;
-import static io.aeron.protocol.HeaderFlyweight.HDR_TYPE_NAK;
-import static io.aeron.protocol.HeaderFlyweight.HDR_TYPE_RTTM;
-import static io.aeron.protocol.HeaderFlyweight.HDR_TYPE_SM;
+import static io.aeron.protocol.HeaderFlyweight.*;
 import static org.agrona.BitUtil.CACHE_LINE_LENGTH;
 
 /**

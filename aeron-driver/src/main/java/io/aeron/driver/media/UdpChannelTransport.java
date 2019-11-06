@@ -33,6 +33,7 @@ import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.UnresolvedAddressException;
 
 import static io.aeron.logbuffer.FrameDescriptor.frameVersion;
 import static java.net.StandardSocketOptions.SO_RCVBUF;
@@ -56,6 +57,18 @@ public abstract class UdpChannelTransport implements AutoCloseable
     protected DatagramChannel receiveDatagramChannel;
     protected int multicastTtl = 0;
     protected boolean isClosed = false;
+
+    public InetSocketAddress getBindAddress() {
+        return bindAddress;
+    }
+
+    public InetSocketAddress getEndPointAddress() {
+        return endPointAddress;
+    }
+
+    public InetSocketAddress getConnectAddress() {
+        return connectAddress;
+    }
 
     public UdpChannelTransport(
         final UdpChannel udpChannel,
@@ -285,6 +298,22 @@ public abstract class UdpChannelTransport implements AutoCloseable
         }
 
         return isFrameValid;
+    }
+
+    public void reconnect() throws IOException {
+        try {
+            if (null != connectAddress) {
+                final InetSocketAddress remote = new InetSocketAddress(connectAddress.getHostString(), connectAddress.getPort());
+                if (!remote.isUnresolved()) {
+                    sendDatagramChannel
+                            .disconnect()
+                            .connect(remote);
+                }
+            }
+        } catch (UnresolvedAddressException ignore) {
+            System.out.println("UdpChannelTransport.reconnect ignore");
+            ignore.printStackTrace(System.out);
+        }
     }
 
     @SuppressWarnings("unused")
