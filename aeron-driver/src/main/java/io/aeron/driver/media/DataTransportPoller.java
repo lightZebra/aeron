@@ -63,7 +63,7 @@ public class DataTransportPoller extends UdpTransportPoller
         int bytesReceived = 0;
         try
         {
-            if (channelAndTransports.length <= ITERATION_THRESHOLD * 10)
+            if (channelAndTransports.length <= ITERATION_THRESHOLD)
             {
                 for (final ChannelAndTransport channelAndTransport : channelAndTransports)
                 {
@@ -106,9 +106,6 @@ public class DataTransportPoller extends UdpTransportPoller
                 channelEndpoint, transport, transportIndex);
 
             key = transport.receiveDatagramChannel().register(selector, SelectionKey.OP_READ, channelAndTransport);
-            System.out.println("DataTransportPoller.registerForRead channelAndTransport "
-                    + " bind: " + channelAndTransport.transport.getBindAddress()
-                    + " connect: " + channelAndTransport.transport.getConnectAddress());
             channelAndTransports = ArrayUtil.add(channelAndTransports, channelAndTransport);
         }
         catch (final ClosedChannelException ex)
@@ -140,10 +137,6 @@ public class DataTransportPoller extends UdpTransportPoller
 
         if (index != ArrayUtil.UNKNOWN_INDEX)
         {
-            final ChannelAndTransport transport1 = transports[index];
-            System.out.println("DataTransportPoller.cancelRead transport1 "
-                    + " bind: " + transport1.transport.getBindAddress()
-                    + " connect: " + transport1.transport.getConnectAddress());
             channelAndTransports = ArrayUtil.remove(transports, index);
         }
     }
@@ -188,7 +181,7 @@ public class DataTransportPoller extends UdpTransportPoller
     static class ChannelAndTransport
     {
         final ReceiveChannelEndpoint channelEndpoint;
-        public final UdpChannelTransport transport;
+        final UdpChannelTransport transport;
         final int transportIndex;
 
         ChannelAndTransport(

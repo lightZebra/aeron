@@ -58,18 +58,6 @@ public abstract class UdpChannelTransport implements AutoCloseable
     protected int multicastTtl = 0;
     protected boolean isClosed = false;
 
-    public InetSocketAddress getBindAddress() {
-        return bindAddress;
-    }
-
-    public InetSocketAddress getEndPointAddress() {
-        return endPointAddress;
-    }
-
-    public InetSocketAddress getConnectAddress() {
-        return connectAddress;
-    }
-
     public UdpChannelTransport(
         final UdpChannel udpChannel,
         final InetSocketAddress endPointAddress,

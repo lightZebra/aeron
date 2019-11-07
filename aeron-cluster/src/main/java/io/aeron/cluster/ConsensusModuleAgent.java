@@ -38,7 +38,6 @@ import org.agrona.concurrent.*;
 import org.agrona.concurrent.status.CountersReader;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -1858,8 +1857,6 @@ class ConsensusModuleAgent implements Agent, MemberStatusListener
 
                     if (!ClusterMember.hasActiveQuorum(clusterMembers, nowNs, leaderHeartbeatTimeoutNs))
                     {
-                        System.out.println("ConsensusModuleAgent.slowTickWork clusterMembers: "
-                                + Arrays.toString(clusterMembers));
                         ctx.countedErrorHandler().onError(
                             new ClusterException("inactive follower quorum", AeronException.Category.WARN));
                         enterElection(nowNs);

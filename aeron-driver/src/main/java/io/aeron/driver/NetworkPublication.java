@@ -36,7 +36,6 @@ import org.agrona.concurrent.status.ReadablePosition;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 
 import static io.aeron.driver.Configuration.PUBLICATION_HEARTBEAT_TIMEOUT_NS;
 import static io.aeron.driver.Configuration.PUBLICATION_SETUP_TIMEOUT_NS;
@@ -288,9 +287,6 @@ public class NetworkPublication
         return isExclusive;
     }
 
-    private long testNs;
-    final long testDelay = TimeUnit.SECONDS.toNanos(30);
-
     public final int send(final long nowNs)
     {
         final long senderPosition = this.senderPosition.get();
@@ -299,13 +295,6 @@ public class NetworkPublication
 
         if (shouldSendSetupFrame)
         {
-            testNs = nowNs;
-            setupMessageCheck(nowNs, activeTermId, termOffset);
-        }
-
-        if ((testNs + testDelay) - nowNs < 0)
-        {
-            testNs = nowNs;
             setupMessageCheck(nowNs, activeTermId, termOffset);
         }
 

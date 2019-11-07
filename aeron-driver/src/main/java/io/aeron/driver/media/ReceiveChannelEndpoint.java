@@ -33,9 +33,7 @@ import org.agrona.concurrent.status.AtomicCounter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static io.aeron.driver.status.SystemCounterDescriptor.*;
 import static io.aeron.protocol.StatusMessageFlyweight.SEND_SETUP_FLAG;
@@ -105,14 +103,11 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
         int bytesSent = 0;
         try
         {
-            System.out.println("ReceiveChannelEndpoint.sendTo null != sendDatagramChannel remoteAddress: " + remoteAddress);
             if (null != sendDatagramChannel)
             {
-                System.out.println("ReceiveChannelEndpoint.sendTo sendHook remoteAddress: " + remoteAddress);
                 sendHook(buffer, new InetSocketAddress(remoteAddress.getHostString(), remoteAddress.getPort()));
                 if (sendDatagramChannel.isOpen())
                 {
-                    System.out.println("ReceiveChannelEndpoint.sendTo sendDatagramChannel.send remoteAddress: " + remoteAddress);
                     bytesSent = sendDatagramChannel.send(buffer, new InetSocketAddress(remoteAddress.getHostString(), remoteAddress.getPort()));
                 }
             }
@@ -420,7 +415,6 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
     public void sendSetupElicitingStatusMessage(
         final int transportIndex, final InetSocketAddress controlAddress, final int sessionId, final int streamId)
     {
-        System.out.println("ReceiveChannelEndpoint.sendSetupElicitingStatusMessage controlAddress: " + controlAddress);
         if (!isClosed)
         {
             smBuffer.clear();
@@ -432,7 +426,6 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
                 .receiverWindowLength(0)
                 .flags(SEND_SETUP_FLAG);
 
-            System.out.println("ReceiveChannelEndpoint.sendSetupElicitingStatusMessage send controlAddress: " + controlAddress);
             send(smBuffer, StatusMessageFlyweight.HEADER_LENGTH, transportIndex, controlAddress);
         }
     }
@@ -469,11 +462,6 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
         final int windowLength,
         final short flags)
     {
-        System.out.println("ReceiveChannelEndpoint.sendStatusMessage controlAddresses: " + Arrays
-                .stream(controlAddresses)
-                .map(imageConnection -> imageConnection == null ? "null" : String.valueOf(imageConnection.controlAddress))
-                .collect(Collectors.joining(",")));
-
         if (!isClosed)
         {
             smBuffer.clear();
@@ -485,10 +473,6 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
                 .receiverWindowLength(windowLength)
                 .flags(flags);
 
-            System.out.println("ReceiveChannelEndpoint.sendStatusMessage send controlAddresses: " + Arrays
-                    .stream(controlAddresses)
-                    .map(imageConnection -> imageConnection == null ? "null" : String.valueOf(imageConnection.controlAddress))
-                    .collect(Collectors.joining(",")));
             send(smBuffer, StatusMessageFlyweight.HEADER_LENGTH, controlAddresses);
         }
     }
@@ -588,16 +572,10 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
 
         if (null == multiRcvDestination)
         {
-            System.out.println("ReceiveChannelEndpoint.send sendTo: " + imageConnections[0].controlAddress);
             bytesSent = sendTo(buffer, imageConnections[0].controlAddress);
         }
         else
         {
-            System.out.println("ReceiveChannelEndpoint.send sendToAll: " + Arrays
-                    .stream(imageConnections)
-                    .map(imageConnection -> imageConnection == null ? "null" : String.valueOf(imageConnection.controlAddress))
-                    .collect(Collectors.joining(",")));
-
             bytesSent = multiRcvDestination.sendToAll(imageConnections, buffer, 0, bytesToSend);
         }
 
@@ -613,17 +591,14 @@ public class ReceiveChannelEndpoint extends UdpChannelTransport
         final int transportIndex,
         final InetSocketAddress remoteAddress)
     {
-        System.out.println("ReceiveChannelEndpoint.send remoteAddress: " + remoteAddress);
         final int bytesSent;
 
         if (null == multiRcvDestination)
         {
-            System.out.println("ReceiveChannelEndpoint.send sendTo remoteAddress: " + remoteAddress);
             bytesSent = sendTo(buffer, remoteAddress);
         }
         else
         {
-            System.out.println("ReceiveChannelEndpoint.send MultiRcvDestination remoteAddress: " + remoteAddress);
             bytesSent = MultiRcvDestination.sendTo(
                 multiRcvDestination.transport(transportIndex), buffer, remoteAddress);
         }
